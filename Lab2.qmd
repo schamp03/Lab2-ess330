@@ -6,6 +6,7 @@ editor: visual
 
 ```{r}
 library(dplyr)
+tree_dat <- read.csv("data/doi_10_5061_dryad_18pm5__v20170130/Itter_et_al_EAP16-0589.R1/tree_dat.csv")
 glimpse(tree_dat)
 ```
 
@@ -110,7 +111,7 @@ tree_dat %>%
 #8
 tree_dat %>%
   filter(year == 2007) %>%
-  arrange(desc(rad_ib_mm))%>%
+  arrange(desc(rad_ib))%>%
   slice_head(n=3)
 
 # Filter for trees in stand 5 recorded in 2007.
@@ -123,9 +124,9 @@ Answer:
 ```{r}
 #9
 tree_dat %>%
-  select(treeID, stand, year, rad_ib_mm) %>%
+  select(treeID, stand, year, rad_ib) %>%
   filter(stand == 3, year == 2007) %>%
-  slice_min(rad_ib_mm, n = 3)
+  slice_min(rad_ib, n = 3)
 
 # Select only the columns treeID, stand, year, and rad_ib_mm.
 # The filter() function limits the data to stand 3 in 2007.
@@ -155,7 +156,7 @@ tree_dat %>%
 ```{r}
 #13
 tree_dat <- tree_dat %>%
-  rename(rad_ib = rad_ib_mm, inc = inc_mm) 
+  rename(rad_ib_mm = rad_ib, inc_mm = inc) 
 
 glimpse(tree_dat)
 ```
@@ -166,8 +167,7 @@ glimpse(tree_dat)
 tree_dat %>%
   mutate(
     DBH_cm = (rad_ib_mm / 10) * 2,
-    BA_m2 = 0.00007854 * DBH_cm^2
-  ) %>%
+    BA_m2 = 0.00007854 * DBH_cm^2) %>%
   filter(species == "POTR", year == 2007) %>%
   summarize(mean_BA = mean(BA_m2, na.rm = TRUE))
 
@@ -218,7 +218,7 @@ tree_dat %>%
 tree_dat %>%
   filter(year == 2007) %>%
   mutate(
-    rad_ib_cm = rad_ib / 10,
+    rad_ib_cm = rad_ib_mm / 10,
     DBH_cm = rad_ib_cm * 2
   ) %>%
   summarise(
