@@ -18,7 +18,7 @@ tree_dat%>% summarize(n = n())
 # This code uses glimpse() to provide a summary of the dataset.
 # It allows us to see the column names, data types, and a preview of the data.
 # From this, we observe that the dataset contains 8 columns: treeID, standID, stand, 
-# year, species, age, inc_mm (growth increment in mm), and rad_ib_mm (radius in mm).
+# year, species, age, inc_mm (growth increment in mm), and rad_ib_mm (radius in mm). and 131386 rows
 
 ```
 
@@ -45,15 +45,7 @@ tree_dat %>%
 # We use filter() to select only the rows where species is either "ABBA" 
 # or "PIST". The %in% operator makes it easy to filter multiple values.
 # The count() function then tallies the numbers for each species.
-
-```
-
-
-```{r}
-#3
-tree_dat %>%
-  filter(species %in% c("ABBA", "PIST")) %>%
-  count(species)
+# ABBA = 13033 and PIST = 4188
 ```
 
 
@@ -68,6 +60,7 @@ tree_dat %>%
 # Determine the most recent year in the dataset using max().
 # Then, we filter the data to include only records from that year where age > 200.
 # Finally, tally() counts how many exist.
+# Answer is 7 trees
 ```
 
 
@@ -82,7 +75,7 @@ oldest_tree <- tree_dat %>%
 print(oldest_tree)
 
 # The slice_max() selects the row with the highest age value.
-# This allows us to identify the oldest tree in the dataset.
+# This allows us to identify the oldest tree in the dataset which is a Pinus Reninosa that is 269.
 
 ```
 
@@ -96,6 +89,7 @@ tree_dat %>%
 # Filter for records from the year 2001.
 # Slice_max() selects the 5 rows with the highest age values.
 # This provides the 5 oldest trees recorded in 2001.
+#The five oldest trees from 2001 have IDs 24, 25, 1595, 1598, and 1712
 ```
 
 ```{r}
@@ -108,6 +102,7 @@ tree_dat %>%
 # Code filters for trees recorded in 2002.
 # Then, slice_sample() randomly selects 30% of these records.
 # The tally() function counts the number of selected rows.
+# The answer is 687 with these qualifications
 ```
 
 
@@ -121,7 +116,7 @@ tree_dat %>%
 # Filter for trees in stand 5 recorded in 2007.
 # The arrange() function sorts the data in descending order by tree radius.
 # Then, slice_head() selects the top 3 records, which correspond to the largest trees.
-
+# The three requested tree IDs are 128, 157, and 135.
 ```
 Answer:
 
@@ -135,7 +130,7 @@ tree_dat %>%
 # Select only the columns treeID, stand, year, and rad_ib_mm.
 # The filter() function limits the data to stand 3 in 2007.
 # slice_min() picks the 3 trees with the smallest radius.
-
+# The smallest three trees measured in 2007 in stand 3 had IDs 50, 56, and 36.
 ```
 Answer:
 
@@ -150,7 +145,7 @@ tree_dat %>%
 ```
 
 ```{r}
-#10 and 11
+#11
 tree_dat %>%
   select(contains(c("ID", "stand"))) %>%
   glimpse()
@@ -180,7 +175,7 @@ tree_dat %>%
 # Calculate basal area (BA_m2) using the given formula.
 # The filter() function selects only trees of species "POTR" in 2007.
 # summarize() computes the mean basal area.
-
+#The mean BA_m2 of POTR in 2007 is 0.03696619 m2.
 ```
 
 
@@ -189,9 +184,10 @@ tree_dat %>%
 tree_dat %>%
   mutate(established = if_else(age > 5, TRUE, FALSE)) %>%
   count(established)
+
+# In this dataset there are 122503 records that are established trees and 8883 records that are not # established.
 ```
 
-Answer:
 
 ```{r}
 #16
@@ -213,6 +209,8 @@ tree_dat %>%
 # case_when() assigns each tree to a DBH class based on its DBH.
 # filter() function selects records from 2007.
 # count() tallies the number of trees in each class.
+# 2007, there were 1963 trees that are poles, 252 trees that are saplings, and 
+# 76 trees that are sawlogs
 ```
 
 ```{r}
@@ -220,15 +218,18 @@ tree_dat %>%
 tree_dat %>%
   filter(year == 2007) %>%
   mutate(
-    rad_ib_cm = rad_ib_mm / 10,
+    rad_ib_cm = rad_ib / 10,
     DBH_cm = rad_ib_cm * 2
   ) %>%
   summarise(
     mean_DBH = mean(DBH_cm, na.rm = TRUE),
     sd_DBH = sd(DBH_cm, na.rm = TRUE)
   )
+
+# The mean DBH in cm in 2007 is 16.09351. This means that the average diameter at breast height for #the trees logged in this dataset at the time was about 16 centimeters. 
+# The standard deviation for all trees in 2007 was 6.138643 
 ```
-Answer:
+
 
 ```{r}
 #18
@@ -238,6 +239,8 @@ tree_dat %>%
   summarise(mean_age = mean(age, na.rm = TRUE)) %>%
   arrange(desc(mean_age)) %>%
   slice_head(n = 3)
+
+# The three species with the oldest mean age in 2003 were THOC, FRNI, and PIST
 ```
 
 ```{r}
@@ -248,20 +251,34 @@ tree_dat %>%
     first_year = min(year),
     last_year = max(year)
   )
+# The number of unique years is 111, with the first dataset year being 
+# 1897 and the last year being 2007. 
+```
+
+```{r}
+#20
+tree_dat |>
+  group_by(stand) |>
+  summarize(num_unique_years = n_distinct(year)) |>
+  ungroup() |>
+  filter(num_unique_years == max(num_unique_years)) |>
+  print()
+
+# The stands with the largest number of unique years, 111 years, were A1, D1, D2, D3, and F1
 ```
 
 
 ```{r}
 #Final Question
 tree_dat %>%
-  # Step 1: Convert radius to diameter first
+ 
   mutate(
-    rad_ib_cm = rad_ib_mm / 10,  # Convert mm to cm
-    DBH_cm = rad_ib_cm * 2        # Compute diameter at breast height (DBH)
+    rad_ib_cm = rad_ib_mm / 10,  
+    DBH_cm = rad_ib_cm * 2         
   ) %>%
-  # Step 2: Now that DBH_cm exists, compute growth rate
+
   group_by(species, treeID) %>%
-  arrange(year) %>%  # Ensure correct chronological order
+  arrange(year) %>%  
   mutate(growth_rate = DBH_cm - lag(DBH_cm)) %>%
   summarise(avg_growth = mean(growth_rate, na.rm = TRUE)) %>%
   arrange(desc(avg_growth))
@@ -271,6 +288,8 @@ tree_dat %>%
 # The mutate() function calculates the annual DBH growth using lag().
 # summarize() then computes the mean growth rate for each species.
 # Arrange the results in descending order to find the fastest-growing species.
+# The three species with the slowest growth rates are PIRE, PIST, and POTR 
+# The three species with the fastest growth rates are LALA, POGR, and THOC.
 
 ```
 
